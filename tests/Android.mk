@@ -3,31 +3,37 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := \
-	$(TEST_PATH)/../tests/decodeinput.cpp \
-	$(TEST_PATH)/../tests/vppinputoutput.cpp \
-        androidplayer.cpp
+        decodeinput.cpp \
+        vppinputoutput.cpp \
+        v4l2decode.cpp
 
 LOCAL_C_INCLUDES:= \
         $(LOCAL_PATH)/.. \
-        $(LOCAL_PATH)/../interface \
-        $(LOCAL_PATH)/../tests \
         external/libcxx/include \
+        $(LOCAL_PATH)/../interface \
         $(TARGET_OUT_HEADERS)/libva
 
 LOCAL_SHARED_LIBRARIES := \
         libutils \
-        libbinder \
         liblog \
         libc++ \
         libva \
         libva-android \
         libui \
         libgui \
-        libyami \
         libstagefright_foundation \
+        libyami_v4l2 \
+
+ifeq ($(ENABLE-V4L2-OPS),true)
+LOCAL_SHARED_LIBRARIES += libdl
+endif
 
 LOCAL_CFLAGS := \
-         -O2
+         -O2 -fpermissive
 
-LOCAL_MODULE := androidplayer
+ifeq ($(ENABLE-V4L2-OPS),true)
+LOCAL_CFLAGS += -D__ENABLE_V4L2_OPS__
+endif
+
+LOCAL_MODULE := v4l2decoder
 include $(BUILD_EXECUTABLE)

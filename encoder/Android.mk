@@ -1,9 +1,9 @@
 LOCAL_PATH := $(call my-dir)
-
 include $(CLEAR_VARS)
-LOCAL_SRC_FILES := \
 
-LOCAL_SRC_FILES += \
+LOCAL_MULTILIB = 64
+
+LOCAL_SRC_FILES := \
         vaapicodedbuffer.cpp \
         vaapiencpicture.cpp \
         vaapiencoder_base.cpp \
@@ -34,6 +34,4 @@ LOCAL_SHARED_LIBRARIES := \
         libc++
 
 LOCAL_MODULE := libyami_encoder
-LOCAL_MODULE_TAGS := optional
 include $(BUILD_STATIC_LIBRARY)
-
