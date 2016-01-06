@@ -58,11 +58,14 @@ void yamiTraceInit()
                 
                 time(&now);
 
+                #if 0
                 if ((curtime = localtime(&now))) {
                     snprintf(filename, sizeof(filename), "%s_%2d_%02d_%02d_%02d_%02d", libyamLog,
                     	curtime->tm_year + 1900, curtime->tm_mon + 1, curtime->tm_mday,
                     	curtime->tm_hour, curtime->tm_sec);
-                } else {
+                } else 
+                #endif
+                {
                     snprintf(filename, sizeof(filename), "%s", libyamLog);
                 }
 

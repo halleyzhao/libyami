@@ -50,6 +50,7 @@ YamiStatus
 VaapiPostProcessScaler::process(const SharedPtr<VideoFrame>& src,
                                 const SharedPtr<VideoFrame>& dest)
 {
+    DEBUG();
     if (!m_context) {
         ERROR("NO context for scaler");
         return YAMI_FAIL;
@@ -57,7 +58,9 @@ VaapiPostProcessScaler::process(const SharedPtr<VideoFrame>& src,
     if (!src || !dest) {
         return YAMI_INVALID_PARAM;
     }
+    DEBUG();
     copyVideoFrameMeta(src, dest);
+    DEBUG();
     SurfacePtr surface(new VaapiSurface(m_display,(VASurfaceID)dest->surface));
     VaapiVppPicture picture(m_context, surface);
     VAProcPipelineParameterBuffer* vppParam;
@@ -73,6 +76,7 @@ VaapiPostProcessScaler::process(const SharedPtr<VideoFrame>& src,
         vppParam->output_region = &destCrop;
     vppParam->output_background_color = 0xff000000;
     vppParam->output_color_standard = VAProcColorStandardNone;
+    DEBUG();
     return picture.process() ? YAMI_SUCCESS : YAMI_FAIL;
 }
 

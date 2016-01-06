@@ -170,16 +170,19 @@ bool V4l2Decoder::inputPulse(int32_t index)
 bool V4l2Decoder::outputPulse(int32_t &index)
 {
     SharedPtr<VideoFrame> output = m_decoder->getOutput();
-
+    DEBUG();
     if(!output) {
+        DEBUG("no output frame available");
         if (eosState() == EosStateInput) {
             setEosState(EosStateOutput);
             fprintf(stderr, "flush-debug flush done on OUTPUT thread\n");
         }
-	return false;
+        return false;
     }
 
+    DEBUG("got one output frame, m_vpp: %p, skip vpp!!!!", m_vpp.get());
     m_vpp->process(output, m_videoFrames[index]);
+    DEBUG();
 
     return true;
 }
@@ -512,6 +515,11 @@ int32_t V4l2Decoder::ioctl(int command, void* arg)
     if (ret == -1 && errno != EAGAIN) {
         // ERROR("ioctl failed");
         WARNING("ioctl command: %s failed", IoctlCommandString(command));
+    }
+
+    if (command == VIDIOC_DQBUF) {
+        struct v4l2_buffer *dqbuf = static_cast<struct v4l2_buffer *>(arg);
+        INFO("ret: %d, index: %d", ret, dqbuf->index);
     }
 
     return ret;

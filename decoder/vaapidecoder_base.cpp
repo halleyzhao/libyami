@@ -208,6 +208,8 @@ SharedPtr<VideoFrame> VaapiDecoderBase::getOutput()
         frame->crop.y = 0;
         frame->crop.width = m_videoFormatInfo.width;
         frame->crop.height = m_videoFormatInfo.height;
+    } else {
+        DEBUG("fail to get an output frame");
     }
     return frame;
 }

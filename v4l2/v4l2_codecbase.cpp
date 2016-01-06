@@ -433,6 +433,7 @@ int32_t V4l2CodecBase::ioctl(int command, void* arg)
                 port = OUTPUT;
 #ifdef ANDROID
                 if (m_streamOn[port] == false) {
+                    DEBUG("NOT STREAMON yet, return the empty buffer (for cancelBuffer)");
                     dqbuf->index = m_framesTodo[port].front();
                     m_framesTodo[port].pop_front();
                     break;
