@@ -23,6 +23,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include <inttypes.h>
 #include <linux/videodev2.h>
 #include <unistd.h>
 #include <errno.h>
@@ -193,7 +194,9 @@ bool V4l2Decoder::outputPulse(uint32_t &index)
     }
 
     m_vpp->process(output, m_videoFrames[index]);
-
+    m_videoFrames[index]->timeStamp = output->timeStamp;
+    m_videoFrames[index]->flags = output->flags;
+    DEBUG("buffer index: %d, timeStamp: %" PRId64 "\n", index, output->timeStamp);
     return true;
 }
 #else
@@ -245,9 +248,10 @@ bool V4l2Decoder::outputPulse(uint32_t &index)
 
     if (status != RENDER_SUCCESS)
         return false;
-#if __ENABLE_V4L2_GLX__
+    
     m_outputRawFrames[index].timeStamp = timeStamp;
-#else
+
+#if !__ENABLE_V4L2_GLX__
     if (m_memoryType == VIDEO_DATA_MEMORY_TYPE_DRM_NAME || m_memoryType == VIDEO_DATA_MEMORY_TYPE_DMA_BUF) {
         // FIXME, it introduce one GPU copy; which is not necessary in major case and should be avoided in most case
         m_eglVaapiImages[index]->blt(*frame);
@@ -291,6 +295,7 @@ bool V4l2Decoder::giveOutputBuffer(struct v4l2_buffer *dqbuf)
 {
     int i;
     ASSERT(dqbuf);
+    INFO("giveOutputBuffer ");
     // for the buffers within range of [m_actualOutBufferCount, m_maxBufferCount[OUTPUT]]
     // there are not used in reality, but still be returned back to client during flush (seek/eos)
     ASSERT(dqbuf->index >= 0 && dqbuf->index < m_maxBufferCount[OUTPUT]);
@@ -309,8 +314,15 @@ bool V4l2Decoder::giveOutputBuffer(struct v4l2_buffer *dqbuf)
     // simple set size data to satify chrome even in texture mode
     dqbuf->m.planes[0].bytesused = m_videoWidth * m_videoHeight;
     dqbuf->m.planes[1].bytesused = m_videoWidth * m_videoHeight/2;
+#if ANDROID
+    dqbuf->timestamp.tv_sec = (long) m_videoFrames[dqbuf->index]->timeStamp;
+    dqbuf->flags = m_videoFrames[dqbuf->index]->flags;
+    DEBUG("deque buffer index: %d, timeStamp: %" PRId64 ", %ld\n",
+        dqbuf->index,  m_videoFrames[dqbuf->index]->timeStamp, dqbuf->timestamp.tv_sec);
+#else
     dqbuf->timestamp.tv_sec = m_outputRawFrames[dqbuf->index].timeStamp;
-
+    dqbuf->flags = m_outputRawFrames[dqbuf->index].flags;
+#endif
     return true;
 }
 
