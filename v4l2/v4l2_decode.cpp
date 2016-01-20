@@ -41,6 +41,16 @@
 #include "egl/egl_vaapi_image.h"
 #endif
 
+#define INT64_TO_DOUBLE_INT32(i64, high, low) do {  \
+        high = (int32_t)(i64 >> 32);                \
+        low = (int32_t)(i64 & 0xffffffff);          \
+    } while (0)
+#define DOUBLE_INT32_TO_INT64(i64, high, low) do {  \
+        i64 = high;                                 \
+        i64 = (i64 << 32) + low;                    \
+    } while(0)
+
+
 V4l2Decoder::V4l2Decoder()
     : m_bindEglImage(false)
     , m_videoWidth(0)
@@ -283,7 +293,8 @@ bool V4l2Decoder::acceptInputBuffer(struct v4l2_buffer *qbuf)
         inputBuffer->data = NULL;
     else
         inputBuffer->data = m_bufferSpace[INPUT] + m_maxBufferSize[INPUT]*qbuf->index;
-    inputBuffer->timeStamp = qbuf->timestamp.tv_sec;
+
+    DOUBLE_INT32_TO_INT64(inputBuffer->timeStamp, qbuf->timestamp.tv_sec, qbuf->timestamp.tv_usec);
     inputBuffer->flag = qbuf->flags;
     // set buffer unit-mode if possible, nal, frame?
     DEBUG("qbuf->index: %d, inputBuffer: %p, timestamp: %ld", qbuf->index, inputBuffer->data, inputBuffer->timeStamp);
@@ -315,14 +326,15 @@ bool V4l2Decoder::giveOutputBuffer(struct v4l2_buffer *dqbuf)
     dqbuf->m.planes[0].bytesused = m_videoWidth * m_videoHeight;
     dqbuf->m.planes[1].bytesused = m_videoWidth * m_videoHeight/2;
 #if ANDROID
-    dqbuf->timestamp.tv_sec = (long) m_videoFrames[dqbuf->index]->timeStamp;
+    INT64_TO_DOUBLE_INT32(m_videoFrames[dqbuf->index]->timeStamp, dqbuf->timestamp.tv_sec, dqbuf->timestamp.tv_usec);
     dqbuf->flags = m_videoFrames[dqbuf->index]->flags;
-    DEBUG("deque buffer index: %d, timeStamp: %" PRId64 ", %ld\n",
-        dqbuf->index,  m_videoFrames[dqbuf->index]->timeStamp, dqbuf->timestamp.tv_sec);
 #else
-    dqbuf->timestamp.tv_sec = m_outputRawFrames[dqbuf->index].timeStamp;
+    INT64_TO_DOUBLE_INT32(m_outputRawFrames[dqbuf->index].timeStamp, dqbuf->timestamp.tv_sec, dqbuf->timestamp.tv_usec);
     dqbuf->flags = m_outputRawFrames[dqbuf->index].flags;
 #endif
+    DEBUG("deque buffer index: %d, timeStamp: (%ld, %ld)\n",
+        dqbuf->index,  dqbuf->timestamp.tv_sec, dqbuf->timestamp.tv_usec);
+
     return true;
 }
 
