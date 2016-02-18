@@ -277,7 +277,7 @@ const char* V4l2CodecBase::IoctlCommandString(long unsigned int command)
     static const char* unknown = "Unkonwn command";
 #define IOCTL_COMMAND_STRING_MAP(cmd)   {cmd, #cmd}
     static struct IoctlCommanMap{
-        long unsigned int command;
+        int command;
         const char* cmdStr;
         } ioctlCommandMap[] = {
             IOCTL_COMMAND_STRING_MAP(VIDIOC_QUERYCAP),
