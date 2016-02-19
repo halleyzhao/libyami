@@ -68,8 +68,13 @@ bool V4l2Encoder::start()
     ASSERT(status == ENCODE_SUCCESS);
 
     NativeDisplay nativeDisplay;
+#if ANDROID
+    nativeDisplay.type = NATIVE_DISPLAY_VA;
+    nativeDisplay.handle = (intptr_t)m_vaDisplay;
+#else
     nativeDisplay.type = NATIVE_DISPLAY_DRM;
     nativeDisplay.handle = 0;
+#endif
     m_encoder->setNativeDisplay(&nativeDisplay);
 
     status = m_encoder->start();
