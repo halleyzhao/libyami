@@ -45,12 +45,15 @@ EncodeInput * EncodeInput::create(const char* inputFileName, uint32_t fourcc, in
     if (!inputFileName)
         return NULL;
 
+#ifndef ANDROID // temp disable transcoding and camera support
     DecodeInput* decodeInput = DecodeInput::create(inputFileName);
     if (decodeInput) {
         input = new EncodeInputDecoder(decodeInput);
     } else if (!strncmp(inputFileName, "/dev/video", strlen("/dev/video"))) {
         input = new EncodeInputCamera;
-    } else {
+    } else 
+#endif
+    {
         input =  new EncodeInputFile;
     }
 
@@ -84,6 +87,7 @@ bool EncodeInputFile::init(const char* inputFileName, uint32_t fourcc, int width
     m_height = height;
     m_fourcc = fourcc;
 
+    DEBUG("m_width: %d, m_height: %d, m_fourcc: 0x%x\n", m_width, m_height, m_fourcc);
     if ((m_width <= 0) ||(m_height <= 0) ||(m_width > MAX_WIDTH) || (m_height > MAX_HEIGHT)) {
         fprintf(stderr, "input width and height is invalid\n");
         return false;
@@ -109,6 +113,8 @@ bool EncodeInputFile::init(const char* inputFileName, uint32_t fourcc, int width
     break;
     }
 
+    DEBUG_FOURCC("m_fourcc: ", m_fourcc);
+    DEBUG("m_frameSize: %d\n", m_frameSize);
     m_fp = fopen(inputFileName, "r");
     if (!m_fp) {
         fprintf(stderr, "fail to open input file: %s", inputFileName);
@@ -124,19 +130,26 @@ bool EncodeInputFile::getOneFrameInput(VideoFrameRawData &inputBuffer)
     if (m_readToEOS)
         return false;
 
+    DEBUG("m_frameSize: %d\n", m_frameSize);
     uint8_t *buffer = m_buffer;
-    if (inputBuffer.handle)
+    if (inputBuffer.handle) {
+        DEBUG();
         buffer = reinterpret_cast<uint8_t*>(inputBuffer.handle);
+    }
 
+    DEBUG("m_frameSize: %d\n", m_frameSize);
+    DEBUG("&m_frameSize: %p, buffer: %p, (&m_frameSize-buffer): %d\n", &m_frameSize, buffer, (uint8_t*)(&m_frameSize) - (uint8_t*)buffer);
+    
     size_t ret = fread(buffer, sizeof(uint8_t), m_frameSize, m_fp);
 
+    DEBUG("m_frameSize: %d\n", m_frameSize);
     if (ret <= 0) {
         m_readToEOS = true;
         return false;
     }
 
     if (ret < m_frameSize) {
-        fprintf (stderr, "data is not enough to read, maybe resolution is wrong\n");
+        fprintf (stderr, "data is not enough to read(read size: %d, m_frameSize: %d), maybe resolution is wrong\n", ret, m_frameSize);
         return false;
     }
 
