@@ -272,6 +272,8 @@ SurfacePtr VaapiEncoderBase::createNewSurface(uint32_t fourcc)
     attrib.type = VASurfaceAttribPixelFormat;
     attrib.value.type = VAGenericValueTypeInteger;
     attrib.value.value.i = fourcc;
+    // hack
+    ASSERT(attrib.value.value.i == VA_FOURCC_NV12);
 
     switch(fourcc) {
     case VA_FOURCC_NV12:
@@ -303,11 +305,13 @@ SurfacePtr VaapiEncoderBase::createSurface()
 
 SurfacePtr VaapiEncoderBase::createSurface(VideoFrameRawData* frame)
 {
+    DEBUG_FOURCC("VaapiEncoderBase::createSurface, fourcc: ", frame->fourcc);
     SurfacePtr surface = createNewSurface(frame->fourcc);
     SurfacePtr nil;
     if (!surface)
         return nil;
-
+    DEBUG();
+    
     ImagePtr image = VaapiImage::derive(surface);
     if (!image) {
         ERROR("VaapiImage::derive() failed");
