@@ -62,6 +62,7 @@ bool readOneFrameData(uint32_t index)
 
     ASSERT(index<inputQueueCapacity);
 
+    DEBUG("inputFrames[%d].handle: %p\n", index, (void*)inputFrames[index].handle);
     bool ret = streamInput->getOneFrameInput(inputFrames[index]);
     if (!ret || (frameCount && encodeFrameCount++>=frameCount)) {
         isReadEOS = true;
@@ -315,8 +316,11 @@ int main(int argc, char** argv)
     ASSERT(reqbufs.count>0 && reqbufs.count <= kMaxFrameQueueLength);
     inputQueueCapacity = reqbufs.count;
 
-    for (i=0; i<inputQueueCapacity; i++)
+    for (i=0; i<inputQueueCapacity; i++) {
         inputFrames[i].handle = reinterpret_cast<intptr_t>(malloc(inputFrameSize));
+        DEBUG("sizeof(intptr_t): %d\n", sizeof(intptr_t));
+        DEBUG("inputFrames[%d].handle: %p\n", i, (void*)inputFrames[i].handle);
+    }
     for (i=inputQueueCapacity; i<kMaxFrameQueueLength; i++)
         inputFrames[i].handle = 0;
 
