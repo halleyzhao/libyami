@@ -327,7 +327,7 @@ int32_t V4l2CodecBase::ioctl(int command, void* arg)
             __u32 type = * ((__u32*)arg);
             GET_PORT_INDEX(port, type, ret);
             if (port == INPUT) {
-                DEBUG("start decoding");
+                DEBUG("start decoding/encoding");
             #ifdef ANDROID
                 // FIXME, I remember cros flush uses STREAMON/STREAMOFF as well
                 if (!setVaDisplay()) {
@@ -422,6 +422,7 @@ int32_t V4l2CodecBase::ioctl(int command, void* arg)
 
             // ::EnqueueInputRecord/EnqueueOutputRecord
             ASSERT(qbuf->memory == m_memoryMode[port]);
+            DEBUG("qbuf->length: %d, m_bufferPlaneCount[%d]: %d\n", qbuf->length, port, m_bufferPlaneCount[port]);
             ASSERT (qbuf->length == m_bufferPlaneCount[port]);
             if (port == INPUT) {
                 bool _ret = acceptInputBuffer(qbuf);

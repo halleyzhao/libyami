@@ -117,6 +117,7 @@ bool V4l2Encoder::inputPulse(uint32_t index)
     if(m_videoParamsChanged )
         UpdateVideoParameters(true);
 
+    DEBUG_FOURCC("m_inputFrames[index].fourcc: ", m_inputFrames[index].fourcc);
     status = m_encoder->encode(&m_inputFrames[index]);
 
     if (status != ENCODE_SUCCESS)
@@ -173,8 +174,14 @@ bool V4l2Encoder::acceptInputBuffer(struct v4l2_buffer *qbuf)
         inputBuffer->forceKeyFrame = true;
         m_forceKeyFrame = false;
     }
+    DEBUG_FOURCC("m_pixelFormat[INPUT]: ", m_pixelFormat[INPUT]);
     switch(m_pixelFormat[INPUT]) {
+    case V4L2_PIX_FMT_NV12:
+        DEBUG();
+        inputBuffer->fourcc = VA_FOURCC_NV12;
+        break;
     case V4L2_PIX_FMT_YUV420M:
+        DEBUG();
         inputBuffer->fourcc = VA_FOURCC('I', '4', '2', '0');
         break;
     case V4L2_PIX_FMT_YUYV:
@@ -323,14 +330,31 @@ int32_t V4l2Encoder::ioctl(int command, void* arg)
 
         } else if (format->type == V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE) {
             // ::NegotiateInputFormat
-            ASSERT(format->fmt.pix_mp.pixelformat == V4L2_PIX_FMT_YUV420M || format->fmt.pix_mp.pixelformat == V4L2_PIX_FMT_YUYV);
+            ASSERT(format->fmt.pix_mp.pixelformat == V4L2_PIX_FMT_YUV420M
+                || format->fmt.pix_mp.pixelformat == V4L2_PIX_FMT_YUYV
+                || format->fmt.pix_mp.pixelformat == V4L2_PIX_FMT_NV12);
             m_pixelFormat[INPUT] = format->fmt.pix_mp.pixelformat;
             switch (m_pixelFormat[INPUT]) {
             case V4L2_PIX_FMT_YUV420M:
                 m_bufferPlaneCount[INPUT] = 3;
+                format->fmt.pix_mp.plane_fmt[0].bytesperline = m_videoParams.resolution.width;
+                format->fmt.pix_mp.plane_fmt[0].sizeimage = m_videoParams.resolution.width * m_videoParams.resolution.height;
+                format->fmt.pix_mp.plane_fmt[1].bytesperline = m_videoParams.resolution.width/2;
+                format->fmt.pix_mp.plane_fmt[1].sizeimage = m_videoParams.resolution.width * m_videoParams.resolution.height /4;
+                format->fmt.pix_mp.plane_fmt[2].bytesperline = m_videoParams.resolution.width/2;
+                format->fmt.pix_mp.plane_fmt[2].sizeimage = m_videoParams.resolution.width * m_videoParams.resolution.height /4;
+            break;
+            case V4L2_PIX_FMT_NV12:
+                m_bufferPlaneCount[INPUT] = 2;
+                format->fmt.pix_mp.plane_fmt[0].bytesperline = m_videoParams.resolution.width;
+                format->fmt.pix_mp.plane_fmt[0].sizeimage = m_videoParams.resolution.width * m_videoParams.resolution.height;
+                format->fmt.pix_mp.plane_fmt[1].bytesperline = m_videoParams.resolution.width;
+                format->fmt.pix_mp.plane_fmt[1].sizeimage = m_videoParams.resolution.width * m_videoParams.resolution.height /2;
             break;
             case V4L2_PIX_FMT_YUYV:
                 m_bufferPlaneCount[INPUT] = 1;
+                format->fmt.pix_mp.plane_fmt[0].bytesperline = m_videoParams.resolution.width * 2;
+                format->fmt.pix_mp.plane_fmt[0].sizeimage = m_videoParams.resolution.width * m_videoParams.resolution.height * 2;
                 break;
             default:
                 ASSERT(0);
@@ -345,12 +369,7 @@ int32_t V4l2Encoder::ioctl(int command, void* arg)
             ASSERT(encodeStatus == ENCODE_SUCCESS);
             INFO("resolution: %d x %d, m_maxOutputBufferSize: %d", m_videoParams.resolution.width,
                 m_videoParams.resolution.height, m_maxOutputBufferSize);
-            format->fmt.pix_mp.plane_fmt[0].bytesperline = m_videoParams.resolution.width;
-            format->fmt.pix_mp.plane_fmt[0].sizeimage = m_videoParams.resolution.width * m_videoParams.resolution.height;
-            format->fmt.pix_mp.plane_fmt[1].bytesperline = m_videoParams.resolution.width/2;
-            format->fmt.pix_mp.plane_fmt[1].sizeimage = m_videoParams.resolution.width * m_videoParams.resolution.height /4;
-            format->fmt.pix_mp.plane_fmt[2].bytesperline = m_videoParams.resolution.width/2;
-            format->fmt.pix_mp.plane_fmt[2].sizeimage = m_videoParams.resolution.width * m_videoParams.resolution.height /4;
+
         } else {
             ret = -1;
             ERROR("unknow type: %d of setting format VIDIOC_S_FMT", format->type);
