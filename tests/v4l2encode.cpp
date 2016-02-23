@@ -94,6 +94,7 @@ bool feedOneInputFrame(int fd, int index = -1 /* if index is not -1, simple enqu
     struct v4l2_plane planes[VIDEO_MAX_PLANES];
     int ioctlRet = -1;
     static uint32_t dqCountAfterEOS = 0;
+    static uint32_t inputBufferCount = 0;
 
     memset(&buf, 0, sizeof(buf));
     memset(&planes, 0, sizeof(planes));
@@ -134,6 +135,7 @@ bool feedOneInputFrame(int fd, int index = -1 /* if index is not -1, simple enqu
     ioctlRet = YamiV4L2_Ioctl(fd, VIDIOC_QBUF, &buf);
     ASSERT(ioctlRet != -1);
 
+    DEBUG("inputBufferCount: %d\n", inputBufferCount++);
     return true;
 }
 
@@ -166,6 +168,7 @@ bool takeOneOutputFrame(int fd, int index = -1/* if index is not -1, simple enqu
     struct v4l2_buffer buf;
     struct v4l2_plane planes[1];
     int ioctlRet = -1;
+    static uint32_t outputBufferCount = 0;
 
     memset(&buf, 0, sizeof(buf));
     memset(planes, 0, sizeof(planes));
@@ -198,6 +201,7 @@ bool takeOneOutputFrame(int fd, int index = -1/* if index is not -1, simple enqu
     ioctlRet = YamiV4L2_Ioctl(fd, VIDIOC_QBUF, &buf);
     ASSERT(ioctlRet != -1);
 
+    DEBUG("outputBufferCount: %d\n", outputBufferCount++);
     return true;
 }
 
@@ -378,16 +382,19 @@ int main(int argc, char** argv)
         feedOneInputFrame(fd);
         if (isReadEOS)
             break;
+        DEBUG();
     } while (YamiV4L2_Poll(fd, true, &event_pending) == 0);
 
     // drain input buffer
     ASSERT(isReadEOS);
     while (!isEncodeEOS) {
+        DEBUG();
         takeOneOutputFrame(fd);
         feedOneInputFrame(fd);
         usleep(10000);
     }
 
+    DEBUG();
     // drain output buffer
     // stop input port to indicate EOS
     type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
@@ -399,6 +406,7 @@ int main(int argc, char** argv)
         takeOneOutputFrame(fd);
     }
 
+    DEBUG();
     ASSERT(isOutputEOS);
     // YamiV4L2_Munmap(void* addr, size_t length)
 
@@ -418,11 +426,13 @@ int main(int argc, char** argv)
     ASSERT(ioctlRet != -1);
 
     // stop output prot
+    DEBUG();
     type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
     ioctlRet = YamiV4L2_Ioctl(fd, VIDIOC_STREAMOFF, &type);
     ASSERT(ioctlRet != -1);
 
     // close device
+    DEBUG();
     ioctlRet = YamiV4L2_Close(fd);
     ASSERT(ioctlRet != -1);
 
