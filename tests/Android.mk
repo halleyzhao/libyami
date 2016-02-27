@@ -40,6 +40,7 @@ include $(LOCAL_PATH)/../common.mk
 
 LOCAL_SRC_FILES := \
         encodeinput.cpp \
+        encodeInputSurface.cpp \
         v4l2encode.cpp
 
 LOCAL_C_INCLUDES:= \
@@ -52,6 +53,8 @@ LOCAL_SHARED_LIBRARIES := \
         libyami_v4l2 \
         libutils \
         libgui \
+        libui \
+        liblog
 
 LOCAL_CPPFLAGS += \
          -fpermissive
