@@ -117,7 +117,15 @@ bool V4l2Encoder::inputPulse(uint32_t index)
     if(m_videoParamsChanged )
         UpdateVideoParameters(true);
 
-    status = m_encoder->encode(&m_inputFrames[index]);
+#if ANDROID
+    if (m_memoryType == VIDEO_DATA_MEMORY_TYPE_ANDROID_NATIVE_BUFFER) {
+        status = m_encoder->encode(m_videoFrames[index]);
+    } else
+#endif
+    {
+        DEBUG_FOURCC("m_inputFrames[index].fourcc: ", m_inputFrames[index].fourcc);
+        status = m_encoder->encode(&m_inputFrames[index]);
+    }
 
     if (status != ENCODE_SUCCESS)
         return false;
@@ -160,6 +168,10 @@ bool V4l2Encoder::acceptInputBuffer(struct v4l2_buffer *qbuf)
 {
     uint32_t i;
     VideoEncRawBuffer *inputBuffer = &(m_inputFrames[qbuf->index]);
+#if ANDROID
+    if (m_memoryType == VIDEO_DATA_MEMORY_TYPE_ANDROID_NATIVE_BUFFER)
+        return true;
+#endif
     // XXX todo: add multiple planes support for yami
     inputBuffer->data = reinterpret_cast<uint8_t*>(qbuf->m.planes[0].m.userptr);
     inputBuffer->size = 0;
@@ -193,7 +205,7 @@ bool V4l2Encoder::acceptInputBuffer(struct v4l2_buffer *qbuf)
 
 bool V4l2Encoder::giveOutputBuffer(struct v4l2_buffer *dqbuf)
 {
-    ASSERT(dqbuf->index>=0 && dqbuf->index<m_maxBufferCount[OUTPUT]);
+    ASSERT(dqbuf->index<m_maxBufferCount[OUTPUT]);
     VideoEncOutputBuffer *outputBuffer = &(m_outputFrames[dqbuf->index]);
     dqbuf->m.planes[0].bytesused = outputBuffer->dataSize;
     dqbuf->bytesused = m_outputFrames[dqbuf->index].dataSize;
@@ -213,11 +225,39 @@ int32_t V4l2Encoder::ioctl(int command, void* arg)
 
     DEBUG("fd: %d, ioctl command: %s", m_fd[0], IoctlCommandString(command));
     switch (command) {
+    case VIDIOC_QBUF:
+#if ANDROID
+    {
+        if (m_memoryType == VIDEO_DATA_MEMORY_TYPE_ANDROID_NATIVE_BUFFER) {
+            // create vaapi surface if input is ANativeWindowBuffer
+            uint32_t i=0;
+            struct v4l2_buffer *qbuf = static_cast<struct v4l2_buffer*>(arg);
+            ANativeWindowBuffer *buf = reinterpret_cast<ANativeWindowBuffer*>(qbuf->m.userptr);
+            DEBUG("ANativeWindowBuffer *buf: %p\n", buf);
+            if (buf) {
+                for (i=0; i<m_winBuff.size(); i++) {
+                    if (m_winBuff[i] == buf)
+                        break;
+                }
+
+                if (i == m_winBuff.size() && buf) {
+                    SharedPtr<VideoFrame> frame;
+                    m_winBuff.push_back(buf);
+                    frame = createVaSurface(buf);
+                    if (!frame) {
+                        ERROR("fail to create va surface from ANativeWindowBuffer: %p\n", buf);
+                        return -1;
+                    }
+                    m_videoFrames.push_back(frame);
+                }
+            }
+        }
+    } // no break;
+#endif
     case VIDIOC_QUERYCAP:
     case VIDIOC_STREAMON:
     case VIDIOC_STREAMOFF:
     case VIDIOC_REQBUFS:
-    case VIDIOC_QBUF:
     case VIDIOC_DQBUF:
         ret = V4l2CodecBase::ioctl(command, arg);
         break;
@@ -225,7 +265,7 @@ int32_t V4l2Encoder::ioctl(int command, void* arg)
         struct v4l2_buffer *buffer = static_cast<struct v4l2_buffer*>(arg);
         ASSERT (buffer->type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE);
         ASSERT(buffer->memory == V4L2_MEMORY_MMAP);
-        ASSERT(buffer->index>=0 && buffer->index<m_maxBufferCount[OUTPUT]);
+        ASSERT(buffer->index<m_maxBufferCount[OUTPUT]);
         ASSERT(buffer->length == m_bufferPlaneCount[OUTPUT]);
         ASSERT(m_maxOutputBufferSize > 0);
 
