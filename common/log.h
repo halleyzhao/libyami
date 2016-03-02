@@ -116,7 +116,7 @@ extern int isIni;
 #ifndef ASSERT
 #define ASSERT(expr) do { \
         if (!(expr)) { \
-            ERROR(); \
+            ERROR("assert fails"); \
             assert(0 && (expr)); \
         } \
     } while(0)

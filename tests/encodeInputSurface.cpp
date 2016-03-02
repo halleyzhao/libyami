@@ -183,17 +183,12 @@ bool EncodeInputSurface::prepareInputBuffer()
         mBufferInfo.push(anb);
     }
 
-    anb = mBufferInfo.front();
-    mBufferInfo.pop();
-    ret = CAST_ANATIVEWINDOW(mNativeWindow)->cancelBuffer(GET_ANATIVEWINDOW(mNativeWindow), anb, -1);
-
-    anb = mBufferInfo.front();
-    mBufferInfo.pop();
-    ret |= CAST_ANATIVEWINDOW(mNativeWindow)->cancelBuffer(GET_ANATIVEWINDOW(mNativeWindow), anb, -1);
-
-    if (ret != 0) {
-        WARNING("can not return buffer to native window");
-        return false;
+    for (i=0; i<2; i++) {
+        anb = mBufferInfo.front();
+        DEBUG("cancelBuffer: %d, and: %p\n", i, anb);
+        ret = CAST_ANATIVEWINDOW(mNativeWindow)->cancelBuffer(GET_ANATIVEWINDOW(mNativeWindow), anb, -1);
+        mBufferInfo.pop();
+        CHECK_RET(ret, "cancelBuffer");
     }
 
     INFO("init input surface finished\n");
@@ -209,8 +204,9 @@ bool EncodeInputSurface::getOneFrameInput(VideoFrameRawData& inputBuffer)
 
     anb = mBufferInfo.front();
     mBufferInfo.pop();
-    DEBUG("queue anb: %p\n", anb);
-    int ret = GET_ANATIVEWINDOW(mNativeWindow)->queueBuffer(GET_ANATIVEWINDOW(mNativeWindow), anb, -1);
+    DEBUG("queueBuffer anb: %p\n", anb);
+    int ret = GET_ANATIVEWINDOW(mNativeWindow)->queueBuffer(
+              GET_ANATIVEWINDOW(mNativeWindow), anb, -1);
     if (ret != 0) {
         ERROR("queueBuffer failed: %s (%d)", strerror(-ret), -ret);
         return false;

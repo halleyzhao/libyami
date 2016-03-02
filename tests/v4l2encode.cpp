@@ -91,7 +91,8 @@ void fillV4L2Buffer(struct v4l2_buffer& buf, const VideoFrameRawData& frame)
     else if (memoryType == VIDEO_DATA_MEMORY_TYPE_ANDROID_NATIVE_BUFFER) {
         // !!! FIXME, v4l2 use long for userptr. so bad
         DEBUG("ANativeWindowBuffer, frame.handle: %p", (void*)frame.handle);
-        buf.m.userptr = (long)((intptr_t)frame.handle);
+        buf.m.planes[0].m.userptr = (long)((intptr_t)frame.handle);
+        buf.m.planes[0].bytesused = sizeof(buf.m.planes[0].m.userptr);
     }
     else
         ASSERT(0 && "unknown memory type");
@@ -105,7 +106,7 @@ bool feedOneInputFrame(int fd, int index = -1 /* if index is not -1, simple enqu
     static uint32_t dqCountAfterEOS = 0;
 
     memset(&buf, 0, sizeof(buf));
-    memset(&planes, 0, sizeof(planes));
+    memset(planes, 0, sizeof(planes));
     buf.m.planes = planes;
     buf.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE; // it indicates input buffer(raw frame) type
     buf.memory = V4L2_MEMORY_USERPTR;
@@ -222,6 +223,12 @@ int main(int argc, char** argv)
     if (!process_cmdline(argc, argv))
         return -1;
 
+#if ANDROID
+    if (!inputFileName) {
+        memoryType = VIDEO_DATA_MEMORY_TYPE_ANDROID_NATIVE_BUFFER;
+        inputFourcc = VA_FOURCC_NV12;
+    }
+#endif
     streamInput = EncodeInput::create(inputFileName, inputFourcc, videoWidth, videoHeight);
     ASSERT(streamInput);
 
@@ -246,6 +253,7 @@ int main(int argc, char** argv)
 
     memset(&format, 0, sizeof(format));
     format.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
+    DEBUG_FOURCC("inputFourcc", inputFourcc);
     switch (inputFourcc) {
     case VA_FOURCC_YV12:
     case VA_FOURCC('I', '4', '2', '0'):
@@ -272,11 +280,7 @@ int main(int argc, char** argv)
     ioctlRet = YamiV4L2_Ioctl(fd, VIDIOC_S_FMT, &format);
     ASSERT(ioctlRet != -1);
 
-// set input buffer type
-#if ANDROID
-    if (!inputFileName)
-        memoryType = VIDEO_DATA_MEMORY_TYPE_ANDROID_NATIVE_BUFFER;
-#endif
+    // set input buffer type
     YamiV4L2_FrameMemoryType(fd, memoryType);
 
     // set framerate

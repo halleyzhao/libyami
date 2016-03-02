@@ -126,12 +126,12 @@ bool V4l2Encoder::inputPulse(uint32_t index)
     {
         DEBUG_FOURCC("m_inputFrames[index].fourcc: ", m_inputFrames[index].fourcc);
         status = m_encoder->encode(&m_inputFrames[index]);
+        ASSERT(m_inputFrames[index].bufAvailable); // check it at a later time when yami does encode in async
     }
 
     if (status != ENCODE_SUCCESS)
         return false;
 
-    ASSERT(m_inputFrames[index].bufAvailable); // check it at a later time when yami does encode in async
     return true;
 }
 
@@ -229,11 +229,11 @@ int32_t V4l2Encoder::ioctl(int command, void* arg)
     case VIDIOC_QBUF:
 #if ANDROID
     {
-        if (m_memoryType == VIDEO_DATA_MEMORY_TYPE_ANDROID_NATIVE_BUFFER) {
+        struct v4l2_buffer* qbuf = static_cast<struct v4l2_buffer*>(arg);
+        if (qbuf->type == V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE && m_memoryType == VIDEO_DATA_MEMORY_TYPE_ANDROID_NATIVE_BUFFER) {
             // create vaapi surface if input is ANativeWindowBuffer
             uint32_t i = 0;
-            struct v4l2_buffer* qbuf = static_cast<struct v4l2_buffer*>(arg);
-            ANativeWindowBuffer* buf = reinterpret_cast<ANativeWindowBuffer*>(qbuf->m.userptr);
+            ANativeWindowBuffer* buf = reinterpret_cast<ANativeWindowBuffer*>(qbuf->m.planes[0].m.userptr );
             DEBUG("ANativeWindowBuffer *buf: %p\n", buf);
             if (buf) {
                 for (i = 0; i < m_winBuff.size(); i++) {
@@ -243,12 +243,12 @@ int32_t V4l2Encoder::ioctl(int command, void* arg)
 
                 if (i == m_winBuff.size() && buf) {
                     SharedPtr<VideoFrame> frame;
-                    m_winBuff.push_back(buf);
                     frame = createVaSurface(buf);
                     if (!frame) {
                         ERROR("fail to create va surface from ANativeWindowBuffer: %p\n", buf);
                         return -1;
                     }
+                    m_winBuff.push_back(buf);
                     m_videoFrames.push_back(frame);
                 }
             }
