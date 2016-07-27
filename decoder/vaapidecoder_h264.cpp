@@ -44,6 +44,36 @@ typedef VaapiDecPictureH264::SliceHeaderPtr SliceHeaderPtr;
 #define MACROBLOCK_ALIGN (2 * MACROBLOCK_SIZE)
 #define MB_ALIGN(arg) (((arg) + (MACROBLOCK_ALIGN - 1)) & (~(MACROBLOCK_ALIGN - 1)) )
 
+void hexDump(const void* ptr, uint32_t size, uint32_t bytesPerLine)
+{
+    const uint8_t *data = (uint8_t*)ptr;
+    DEBUG("#### hexDump data=%p, size=%d, bytesPerLine=%d\n", data, size, bytesPerLine);
+    assert(data && size && bytesPerLine);
+
+    if (!data)
+        return;
+
+    #define MAX_DUMP_SIZE   256
+    if (size > MAX_DUMP_SIZE) {
+        WARNING("hexDump data size is huge, truncate to %d\n", MAX_DUMP_SIZE);
+        size = MAX_DUMP_SIZE;
+    }
+
+    char oneLineData[bytesPerLine*4+1];
+    uint32_t offset = 0, lineStart = 0, i= 0;
+    while (offset < size) {
+        sprintf(&oneLineData[i*4], "%02x, ", *(data+offset));
+        offset++;
+        i++;
+        if (offset == size || (i % bytesPerLine == 0)) {
+            oneLineData[4*i-1] = '\0';
+            DEBUG("hexDump %04x: %s", lineStart, oneLineData);
+            lineStart += bytesPerLine;
+            i = 0;
+        }
+    }
+}
+
 static Decode_Status getStatus(H264ParserResult result)
 {
     Decode_Status status;
@@ -1407,6 +1437,7 @@ Decode_Status VaapiDecoderH264::start(VideoConfigBuffer * buffer)
             gotConfig = true;
         }
     } else {
+        hexDump(buffer->data, buffer->size, 16);
         if (!decodeCodecData((uint8_t *) buffer->data, buffer->size)) {
             ERROR("codec data has some error");
             return DECODE_FAIL;
@@ -1471,6 +1502,7 @@ Decode_Status VaapiDecoderH264::decode(VideoDecodeBuffer * buffer)
     int32_t ofs = 0;
     uint32_t startCode;
     bool isEOS = false;
+    static int decodeInputCount = 0;
 
     m_currentPTS = buffer->timeStamp;
     buf = buffer->data;
@@ -1483,6 +1515,9 @@ Decode_Status VaapiDecoderH264::decode(VideoDecodeBuffer * buffer)
         return DECODE_SUCCESS;
     }
 
+    DEBUG("decodeInputCount: %d", decodeInputCount);
+    hexDump(buf, size, 16);
+    decodeInputCount++;
     do {
         if (m_isAVC || buffer->flag & IS_AVCC) {
             if (size < m_nalLengthSize)
