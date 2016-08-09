@@ -11,6 +11,7 @@ include $(LIBYAMICODEC_PATH)/encoder/yunos.mk
 include $(LIBYAMICODEC_PATH)/vpp/yunos.mk
 # include $(LIBYAMICODEC_PATH)/v4l2/yunos.mk
 
+LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 include $(LIBYAMICODEC_PATH)/common.mk
 
