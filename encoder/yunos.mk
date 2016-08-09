@@ -20,13 +20,12 @@ LOCAL_SRC_FILES += \
 #LOCAL_SRC_FILES += \
         vaapiencoder_hevc.cpp
 
-LOCAL_C_INCLUDES:= \
+LOCAL_C_INCLUDES+= \
         $(LOCAL_PATH)/.. \
         $(LOCAL_PATH)/../common \
         $(LOCAL_PATH)/../vaapi \
         $(LOCAL_PATH)/../codecparsers \
-        external/libcxx/include \
-        $(TARGET_OUT_HEADERS)/libva \
+        external/libcxx/include 
 
 LOCAL_MODULE := libyami_encoder
 include $(BUILD_STATIC_LIBRARY)
