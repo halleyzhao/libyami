@@ -17,17 +17,11 @@ LOCAL_SHARED_LIBRARIES := \
         libva \
         libva_wayland
 
-LOCAL_WHOLE_STATIC_LIBRARIES := \
-        libyami_common \
-        libcodecparser \
-        libyami_vaapi \
-        libyami_vpp \
-        libyami_decoder \
-        libyami_encoder
-
 ifeq ($(ENABLE-V4L2-OPS),true)
 LOCAL_CFLAGS += -D__ENABLE_V4L2_OPS__
 endif
 
+LOCAL_ALLOW_UNDEFINED_SYMBOLS := true
+
 LOCAL_MODULE := libyami_v4l2
-include $(BUILD_SHARED_LIBRARY)
+include $(BUILD_STATIC_LIBRARY)
