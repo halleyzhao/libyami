@@ -15,9 +15,7 @@ LOCAL_C_INCLUDES:= \
         $(TARGET_OUT_HEADERS)/libva
 
 LOCAL_SHARED_LIBRARIES := \
-        liblog \
-        libva \
-        libc++
+        libva
 
 LOCAL_CPPFLAGS += \
         --rtti

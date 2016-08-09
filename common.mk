@@ -2,3 +2,8 @@ LOCAL_CFLAGS := -D__ENABLE_DEBUG__ -Wno-sign-compare -Wno-unused-parameter -O2 -
 LOCAL_CPPFLAGS := -D__ENABLE_DEBUG__ -Wno-sign-compare -Wno-unused-parameter -O2 -std=c++11
 
 ENABLE-V4L2-OPS=true
+
+## for yunos.mk
+LOCAL_LDFLAGS += -lpthread -lstdc++
+COMMON_ROOT_PATH := $(call my-dir)
+LOCAL_C_INCLUDES += $(COMMON_ROOT_PATH)../libva/

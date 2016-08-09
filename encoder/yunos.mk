@@ -28,9 +28,5 @@ LOCAL_C_INCLUDES:= \
         external/libcxx/include \
         $(TARGET_OUT_HEADERS)/libva \
 
-LOCAL_SHARED_LIBRARIES := \
-        liblog \
-        libc++
-
 LOCAL_MODULE := libyami_encoder
 include $(BUILD_STATIC_LIBRARY)

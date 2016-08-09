@@ -14,16 +14,15 @@ LOCAL_SRC_FILES := \
         vaapiimagepool.cpp \
         vaapisurfaceallocator.cpp \
 
-LOCAL_C_INCLUDES:= \
+LOCAL_C_INCLUDES+= \
         $(LOCAL_PATH)/.. \
-        external/libcxx/include \
-        $(TARGET_OUT_HEADERS)/libva
+        external/libcxx/include\
+        $(LOCAL_PATH)/../libva
 
 LOCAL_SHARED_LIBRARIES := \
         liblog \
         libva \
-        libva-android \
-        libc++ \
+        libva_wayland
 
 LOCAL_CPPFLAGS += \
         --rtti

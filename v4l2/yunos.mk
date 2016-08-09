@@ -15,11 +15,8 @@ LOCAL_C_INCLUDES:= \
         $(TARGET_OUT_HEADERS)/libva \
 
 LOCAL_SHARED_LIBRARIES := \
-        liblog \
-        libc++ \
         libva \
-        libhardware \
-        libva-android
+        libva_wayland
 
 LOCAL_WHOLE_STATIC_LIBRARIES := \
         libyami_common \
