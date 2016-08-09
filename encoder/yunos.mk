@@ -18,7 +18,7 @@ LOCAL_SRC_FILES += \
         vaapiencoder_vp8.cpp
 
 #LOCAL_SRC_FILES += \
-        vaapiencoder_hevc.cpp
+#        vaapiencoder_hevc.cpp
 
 LOCAL_C_INCLUDES+= \
         $(LOCAL_PATH)/.. \
