@@ -8,11 +8,11 @@ LOCAL_SRC_FILES := \
         vaapipostprocess_scaler.cpp \
         vaapivpppicture.cpp
 
-LOCAL_C_INCLUDES:= \
+LOCAL_C_INCLUDES+= \
         $(LOCAL_PATH)/.. \
         $(LOCAL_PATH)/../interface \
         external/libcxx/include \
-        $(TARGET_OUT_HEADERS)/libva
+        $(LOCAL_PATH)/../../libva
 
 LOCAL_SHARED_LIBRARIES := \
         libva
