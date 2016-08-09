@@ -5,14 +5,14 @@ LOCAL_SRC_FILES += \
         encoder/vaapiencoder_host.cpp
 
 LOCAL_SRC_FILES += \
-        vaapiencoder_h264.cpp
+        encoder/vaapiencoder_h264.cpp
 
 LOCAL_SRC_FILES += \
-        vaapiencoder_jpeg.cpp
+        encoder/vaapiencoder_jpeg.cpp
 
 LOCAL_SRC_FILES += \
-        vaapiencoder_vp8.cpp
+        encoder/vaapiencoder_vp8.cpp
 
 #LOCAL_SRC_FILES += \
-#        vaapiencoder_hevc.cpp
+#        encoder/vaapiencoder_hevc.cpp
 
