@@ -11,8 +11,7 @@ LOCAL_SRC_FILES := \
 LOCAL_C_INCLUDES+= \
         $(LOCAL_PATH)/.. \
         $(LOCAL_PATH)/../interface \
-        external/libcxx/include \
-        $(LOCAL_PATH)/../../libva
+        external/libcxx/include
 
 LOCAL_SHARED_LIBRARIES := \
         libva

@@ -13,8 +13,7 @@ LOCAL_SRC_FILES := \
 
 LOCAL_C_INCLUDES+= \
         $(LOCAL_PATH)/.. \
-        external/libcxx/include\
-        $(LOCAL_PATH)/../../libva
+        external/libcxx/include
 
 LOCAL_SHARED_LIBRARIES := \
         liblog \
