@@ -24,7 +24,7 @@
 #include <va/va_x11.h>
 #endif
 #ifndef ANDROID
-#include <va/va_drm.h>
+#include <va/drm/va_drm.h>
 #endif
 #include <vector>
 #include "common/lock.h"

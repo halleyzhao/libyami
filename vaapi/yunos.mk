@@ -4,20 +4,17 @@ include $(LOCAL_PATH)/../common.mk
 
 LOCAL_SRC_FILES := \
         vaapipicture.cpp \
-        vaapibuffer.cpp \
-        vaapiimage.cpp \
-        vaapisurface.cpp\
-        vaapiimageutils.cpp \
-        vaapiutils.cpp \
+        VaapiBuffer.cpp \
+        VaapiSurface.cpp\
+        VaapiUtils.cpp \
         vaapidisplay.cpp \
         vaapicontext.cpp \
-        vaapiimagepool.cpp \
-        vaapisurfaceallocator.cpp \
+        vaapisurfaceallocator.cpp
 
 LOCAL_C_INCLUDES+= \
         $(LOCAL_PATH)/.. \
         external/libcxx/include\
-        $(LOCAL_PATH)/../libva
+        $(LOCAL_PATH)/../../libva
 
 LOCAL_SHARED_LIBRARIES := \
         liblog \
