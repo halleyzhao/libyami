@@ -17,6 +17,9 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 include $(LIBYAMICODEC_PATH)/common.mk
 
+# add dummy file to pass xmake
+LOCAL_SRC_FILES := my_dummy.cpp
+
 LOCAL_SHARED_LIBRARIES := \
         libva \
         libva_wayland
