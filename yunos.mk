@@ -1,14 +1,16 @@
 ## static libs for each module
 LOCAL_PATH := $(call my-dir)
 LIBYAMICODEC_PATH := $(LOCAL_PATH)
-include $(CLEAR_VARS)
+#include $(CLEAR_VARS)
 
-include $(LIBYAMICODEC_PATH)/common/yunos.mk
+#include $(LIBYAMICODEC_PATH)/common/yunos.mk
 
 ## libyami
-LOCAL_PATH := $(LIBYAMICODEC_PATH)
+#LOCAL_PATH := $(LIBYAMICODEC_PATH)
 include $(CLEAR_VARS)
 include $(LIBYAMICODEC_PATH)/common.mk
+
+LOCAL_SRC_FILES := my_dummy.cpp
 
 LOCAL_SHARED_LIBRARIES := \
         libva \

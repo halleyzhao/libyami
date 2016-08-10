@@ -1,12 +1,12 @@
-LOCAL_PATH := $(call my-dir)
+#LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
-include $(LOCAL_PATH)/../common.mk
+include $(LIBYAMICODEC_PATH)/common.mk
 
 LOCAL_SRC_FILES := \
-        log.cpp \
-        utils.cpp \
-        nalreader.cpp \
-        surfacepool.cpp
+        common/log.cpp \
+        common/utils.cpp \
+        common/nalreader.cpp \
+        common/surfacepool.cpp
 
 LOCAL_C_INCLUDES += \
         $(LOCAL_PATH)/.. \
