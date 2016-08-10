@@ -5,5 +5,4 @@ ENABLE-V4L2-OPS=true
 
 ## for yunos.mk
 LOCAL_LDFLAGS += -lpthread -lstdc++
-COMMON_ROOT_PATH := $(call my-dir)
-LOCAL_C_INCLUDES := $(COMMON_ROOT_PATH)/../libva/
+LOCAL_C_INCLUDES += $(LIBYAMICODEC_PATH)/../libva/

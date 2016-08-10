@@ -8,12 +8,11 @@ LOCAL_SRC_FILES := \
         nalreader.cpp \
         surfacepool.cpp
 
-LOCAL_C_INCLUDES+= \
+LOCAL_C_INCLUDES += \
         $(LOCAL_PATH)/.. \
         external/libcxx/include
 
 LOCAL_SHARED_LIBRARIES := \
-        liblog \
         libva
 
 LOCAL_MODULE := libyami_common
