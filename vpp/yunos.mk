@@ -1,12 +1,11 @@
-LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
-include $(LOCAL_PATH)/../common.mk
+include $(LIBYAMICODEC_PATH)/common.mk
 
 LOCAL_SRC_FILES := \
-        vaapipostprocess_base.cpp \
-        vaapipostprocess_host.cpp \
-        vaapipostprocess_scaler.cpp \
-        vaapivpppicture.cpp
+        vpp/vaapipostprocess_base.cpp \
+        vpp/vaapipostprocess_host.cpp \
+        vpp/vaapipostprocess_scaler.cpp \
+        vpp/vaapivpppicture.cpp
 
 LOCAL_C_INCLUDES+= \
         $(LOCAL_PATH)/.. \

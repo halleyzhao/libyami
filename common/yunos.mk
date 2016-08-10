@@ -15,5 +15,6 @@ LOCAL_C_INCLUDES += \
 LOCAL_SHARED_LIBRARIES := \
         libva
 
+LOCAL_ALLOW_UNDEFINED_SYMBOLS := true
 LOCAL_MODULE := libyami_common
 include $(BUILD_STATIC_LIBRARY)

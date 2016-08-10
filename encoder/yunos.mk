@@ -1,21 +1,20 @@
-LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
-include $(LOCAL_PATH)/../common.mk
+include $(LIBYAMICODEC_PATH)/common.mk
 
 LOCAL_SRC_FILES := \
-        vaapicodedbuffer.cpp \
-        vaapiencpicture.cpp \
-        vaapiencoder_base.cpp \
-        vaapiencoder_host.cpp \
+        encoder/vaapicodedbuffer.cpp \
+        encoder/vaapiencpicture.cpp \
+        encoder/vaapiencoder_base.cpp \
+        encoder/vaapiencoder_host.cpp \
 
 LOCAL_SRC_FILES += \
-        vaapiencoder_h264.cpp
+        encoder/vaapiencoder_h264.cpp
 
 LOCAL_SRC_FILES += \
-        vaapiencoder_jpeg.cpp
+        encoder/vaapiencoder_jpeg.cpp
 
 LOCAL_SRC_FILES += \
-        vaapiencoder_vp8.cpp
+        encoder/vaapiencoder_vp8.cpp
 
 #LOCAL_SRC_FILES += \
 #        vaapiencoder_hevc.cpp
