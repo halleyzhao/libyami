@@ -1,13 +1,13 @@
-# LOCAL_PATH := $(call my-dir)
+LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 include $(LIBYAMICODEC_PATH)/common.mk
 
 
 LOCAL_SRC_FILES := \
-        v4l2/v4l2_codecbase.cpp \
-        v4l2/v4l2_decode.cpp \
-        v4l2/v4l2_encode.cpp \
-        v4l2/v4l2_wrapper.cpp
+        v4l2_codecbase.cpp \
+        v4l2_decode.cpp \
+        v4l2_encode.cpp \
+        v4l2_wrapper.cpp
 
 LOCAL_C_INCLUDES:= \
         $(LOCAL_PATH)/.. \

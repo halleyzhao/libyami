@@ -11,11 +11,12 @@ include $(LIBYAMICODEC_PATH)/encoder/yunos.mk
 include $(LIBYAMICODEC_PATH)/vpp/yunos.mk
 
 ## libyami
-#LOCAL_PATH := $(LIBYAMICODEC_PATH)
+LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 include $(LIBYAMICODEC_PATH)/common.mk
 
 LOCAL_SRC_FILES := my_dummy.cpp
+LOCAL_C_INCLUDES :=
 
 LOCAL_SHARED_LIBRARIES := \
         libva           \

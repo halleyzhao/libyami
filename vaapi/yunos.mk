@@ -1,15 +1,16 @@
+LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 include $(LIBYAMICODEC_PATH)/common.mk
 
 
 LOCAL_SRC_FILES := \
-        vaapi/vaapipicture.cpp \
-        vaapi/VaapiBuffer.cpp \
-        vaapi/VaapiSurface.cpp\
-        vaapi/VaapiUtils.cpp \
-        vaapi/vaapidisplay.cpp \
-        vaapi/vaapicontext.cpp \
-        vaapi/vaapisurfaceallocator.cpp
+        vaapipicture.cpp \
+        VaapiBuffer.cpp \
+        VaapiSurface.cpp\
+        VaapiUtils.cpp \
+        vaapidisplay.cpp \
+        vaapicontext.cpp \
+        vaapisurfaceallocator.cpp
 
 LOCAL_C_INCLUDES+= \
         $(LOCAL_PATH)/.. \
