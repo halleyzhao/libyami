@@ -23,7 +23,12 @@ LOCAL_SHARED_LIBRARIES := \
 LOCAL_LDFLAGS += -lstdc++
 
 LOCAL_WHOLE_STATIC_LIBRARIES := \
-        libyami_common
+        libyami_common  \
+        libcodecparser  \
+        libyami_vaapi   \
+        libyami_decoder \
+        libyami_encoder  \
+        libyami_vpp
 
 LOCAL_MODULE := libyami
 
