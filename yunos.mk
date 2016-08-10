@@ -18,9 +18,10 @@ include $(LIBYAMICODEC_PATH)/common.mk
 LOCAL_SRC_FILES := my_dummy.cpp
 
 LOCAL_SHARED_LIBRARIES := \
-        libva \
+        libva           \
+        libva_drm       \
         libva_wayland
-LOCAL_LDFLAGS += -lstdc++
+LOCAL_LDFLAGS += -lstdc++ -lm
 
 LOCAL_WHOLE_STATIC_LIBRARIES := \
         libyami_common  \
